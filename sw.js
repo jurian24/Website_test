@@ -4,7 +4,7 @@ const ASSETS_TO_CACHE = [
   "./",                 // root (index.html)
   "./index.html",
   "./manifest.json",
-  "./icons/rekenmachine.png"
+  "./images/logo192.png"
 ];
 
 // Install event: cache de bestanden
@@ -37,16 +37,12 @@ self.addEventListener("activate", event => {
   );
 });
 
-// Fetch event: eerst cache, dan netwerk
-self.addEventListener("fetch", event => {
-  event.respondWith(
-    caches.match(event.request).then(response => {
-      if (response) {
-        console.log("[Service Worker] Serving from cache:", event.request.url);
-        return response;
-      }
-      console.log("[Service Worker] Fetching from network:", event.request.url);
-      return fetch(event.request);
+// Fetch event: cache first, fallback to network
+self.addEventListener("fetch", e => {
+  console.log("[Service Worker] Intercepting fetch request for:", e.request.url);
+  e.respondWith(
+    caches.match(e.request).then(response => {
+      return response || fetch(e.request);
     })
   );
 });
