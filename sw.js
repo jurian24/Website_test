@@ -3,8 +3,8 @@ const CACHE_NAME = "site-cache-v1";
 const ASSETS_TO_CACHE = [
   "./",                 // root (index.html)
   "./index.html",
-  "./src/manifest.json",
-  "./src/icons/rekenmachine.png"
+  "./manifest.json",
+  "./icons/rekenmachine.png"
 ];
 
 // Install event: cache de bestanden
