@@ -1,16 +1,22 @@
 const CACHE_NAME = "site-cache-v1";
+
 const ASSETS_TO_CACHE = [
-  "/", // root (index.html)
-  "/index.html",
+  "./",                 // root (index.html)
+  "./index.html",
+  "./src/manifest.json",
+  "./src/icons/rekenmachine.png"
 ];
 
 // Install event: cache de bestanden
 self.addEventListener("install", event => {
-  console.log("[Service Worker] Install");
+  console.log("[Service Worker] Install & caching resources...");
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      console.log("[Service Worker] Caching files");
       return cache.addAll(ASSETS_TO_CACHE);
+    }).then(() => {
+      console.log("[Service Worker] Resources cached successfully.");
+    }).catch(err => {
+      console.error("[Service Worker] Failed to cache resources:", err);
     })
   );
 });
@@ -22,7 +28,10 @@ self.addEventListener("activate", event => {
     caches.keys().then(keys =>
       Promise.all(
         keys.filter(key => key !== CACHE_NAME)
-            .map(key => caches.delete(key))
+            .map(key => {
+              console.log("[Service Worker] Deleting old cache:", key);
+              return caches.delete(key);
+            })
       )
     )
   );
@@ -32,7 +41,12 @@ self.addEventListener("activate", event => {
 self.addEventListener("fetch", event => {
   event.respondWith(
     caches.match(event.request).then(response => {
-      return response || fetch(event.request);
+      if (response) {
+        console.log("[Service Worker] Serving from cache:", event.request.url);
+        return response;
+      }
+      console.log("[Service Worker] Fetching from network:", event.request.url);
+      return fetch(event.request);
     })
   );
 });
